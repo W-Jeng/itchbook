@@ -6,7 +6,7 @@
 #include <chrono>
 
 int main(int argc, char** argv) {
-    const char* path = (argc > 1) ? argv[1] : "./data/short.bin";
+    const char* path = (argc > 1) ? argv[1] : "../data/short.bin";
 
     try {
         MappedFile f(path);
