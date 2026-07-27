@@ -1,4 +1,5 @@
 #include "mapped_file.h"
+#include "profiler.h"
 #include <cstddef>
 #include <cstdint>
 #include <exception>
@@ -9,11 +10,12 @@ int main(int argc, char** argv) {
     const char* path = (argc > 1) ? argv[1] : "../data/short.bin";
 
     try {
-        MappedFile f(path);
+        itchbook::MappedFile f(path);
         const std::byte* const begin = f.data();
         const std::byte* p   = begin;
         const std::byte* end = begin + f.size();
         std::size_t n = 0;
+        itchbook::LatencyProbe<1'000'000> lp;
         auto t0 = std::chrono::steady_clock::now();
 
         while (end - p >= 2) {
@@ -24,9 +26,11 @@ int main(int argc, char** argv) {
 
             if (static_cast<std::size_t>(end - p) < 2u + len) 
                 break;
-
-            // dispatch(p + 2, len);
+            
+            // process 
+            lp.start();
             p += 2 + len;
+            lp.stop();
             ++n;
         }
 
@@ -34,6 +38,7 @@ int main(int argc, char** argv) {
         auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(t1-t0);
         std::cout << "Time taken: " << duration.count() << " ms\n";
         std::cout << "messages: " << n << "\n";
+        std::cout << "lp p99.9: " << lp.samples().pct(99.9) << "\n";
 
         if (p != end) {
             std::cerr << "trailing bytes: " << (end - p)

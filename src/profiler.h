@@ -5,6 +5,11 @@
 #include <cstddef>
 #include <algorithm>
 
+
+namespace itchbook {
+
+inline constexpr bool ProfilingEnabled = true;
+
 template<std::size_t N>
 class SampleBuffer {
 public:
@@ -51,8 +56,9 @@ template<std::size_t N>
 class LatencyProbe {
 public:
     [[gnu::always_inline]] inline void start() {
+        unsigned aux;
+        m_t0 = __rdtscp(&aux);
         _mm_lfence();
-        m_t0 = __rdtsc();
     }
 
     [[gnu::always_inline]] inline void stop() {
@@ -65,9 +71,34 @@ public:
     }
 
     const SampleBuffer<N>& samples() const { return m_samples; }
-    SampleBuffer<N>& samples() { return m_hist; }
+    SampleBuffer<N>& samples() { return m_samples; }
 
 private:
     SampleBuffer<N> m_samples;
     uint64_t m_t0{};
 };
+
+
+template <typename Site, bool Enabled, std::size_t N>
+class Profiler {
+public:
+    [[gnu::always_inline]] void start(Site s) {
+        if constexpr (Enabled) 
+            m_probes[static_cast<std::size_t>(s)].start();
+    }
+
+    [[gnu::always_inline]] void stop(Site s) {
+        if constexpr (Enabled) 
+            m_probes[static_cast<std::size_t>(s)].stop();
+    }
+    
+    SampleBuffer<N>& samples(Site s) {
+        return m_probes[static_cat<std::size_t>(s)].samples();
+    }
+
+private:
+    static constexpr std::size_t sites_count = static_cast<std::size_t>(Site::COUNT);
+    std::array<LatencyProbe<N>, Enabled ? sites_count : 0> m_probes;
+};
+
+} 

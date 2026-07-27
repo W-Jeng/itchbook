@@ -7,6 +7,9 @@
 #include <cstddef>
 #include <stdexcept>
 
+
+namespace itchbook {
+
 class MappedFile {
 public:
     explicit MappedFile(const char* path) {
@@ -49,3 +52,5 @@ private:
     const std::byte* data_ = nullptr;
     size_t size_ = 0;
 };
+
+}
