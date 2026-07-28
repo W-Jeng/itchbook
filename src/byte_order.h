@@ -1,16 +1,21 @@
 #pragma once
 #include <cstdint>
 #include <cstddef>
+#include <cstring>
+#include <bit>
 
 namespace itchbook {
     
-template<typename T>
-T load_be(const std::byte* p) {
+template <typename T>
+inline T load_be(const std::byte* p) {
     T v;
     std::memcpy(&v, p, sizeof(T));
 
-    if constexpr (std::endian::native == std::endian::little)
-        v  = std::byteswap(v);
+    if constexpr (std::endian::native == std::endian::little) {
+        if constexpr      (sizeof(T) == 2) v = __builtin_bswap16(v);
+        else if constexpr (sizeof(T) == 4) v = __builtin_bswap32(v);
+        else if constexpr (sizeof(T) == 8) v = __builtin_bswap64(v);
+    }
 
     return v;
 }
