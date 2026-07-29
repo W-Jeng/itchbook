@@ -3,12 +3,8 @@
 
 namespace itchbook {
 
-[[gnu::always_inline]]
-inline void parse_system_event(const std::byte* m, ParseState& state) {
-    // do nothing
-}
+inline void parse_system_event(const std::byte* m, ParseState& state) { }
 
-[[gnu::always_inline]]
 inline void parse_stock_directory(const std::byte* m, ParseState& state) {
     uint16_t locate = load_be<uint16_t>(m+1);
     Symbol& s = state.symbols[locate];

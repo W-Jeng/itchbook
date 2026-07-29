@@ -4,6 +4,7 @@
 #include "messages.h"
 #include "parse_state.h"
 #include "parse_admin_msg.h"
+#include "parse_order_msg.h"
 #include <array>
 #include <cstdint>
 #include <iostream>
@@ -57,6 +58,34 @@ private:
 
             case 'R':
                 parse_stock_directory(p, m_state);
+                break;
+            
+            case 'A':
+                parse_add_order(p, m_state);
+                break;
+
+            case 'F':
+                parse_add_order(p, m_state);
+                break;
+
+            case 'E':
+                parse_order_executed(p, m_state);
+                break;
+
+            case 'C':
+                parse_order_executed_with_price(p, m_state);
+                break;
+
+            case 'X':
+                parse_order_cancel(p, m_state);
+                break;
+
+            case 'D':
+                parse_order_delete(p, m_state);
+                break;
+
+            case 'U':
+                parse_order_replace(p, m_state);
                 break;
 
             default:
