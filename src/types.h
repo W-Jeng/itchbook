@@ -12,6 +12,8 @@ enum class Site : uint8_t {
     COUNT
 };
 
+
+
 using Prof = Profiler<Site, ProfilingEnabled, 1'000'000>;
 
 }
