@@ -71,23 +71,23 @@ private:
             case 'E':
                 parse_order_executed(p, m_state);
                 break;
-
+            
             case 'C':
                 parse_order_executed_with_price(p, m_state);
                 break;
-
+            
             case 'X':
                 parse_order_cancel(p, m_state);
                 break;
-
+            
             case 'D':
                 parse_order_delete(p, m_state);
                 break;
-
+            
             case 'U':
                 parse_order_replace(p, m_state);
                 break;
-
+            
             default:
                 break;
         }
