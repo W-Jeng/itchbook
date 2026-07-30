@@ -12,12 +12,12 @@ class PoolAllocator {
     static_assert(sizeof(T) >= sizeof(Index));
 public:
     using index_type = Index;
-    static constexpr Nil = std::numeric_limits<Index>::max();
+    static constexpr nil = std::numeric_limits<Index>::max();
 
     explicit PoolAllocator(std::size_t cap): m_slots(cap) {}
 
     Index alloc() {
-        if (m_free != Nil) {
+        if (m_free != nil) {
             const Index i = m_free;
             m_free = m_slots[i].next;
             return i;
@@ -27,7 +27,7 @@ public:
             return m_high++;
 
         ++m_exhausted;
-        return Nil;
+        return nil;
     }
 
     void release(Index i) {
@@ -51,13 +51,30 @@ private:
     union Slot {
         T value;
         Index next;
-        Slot() : next(Nil) {}
+        Slot() : next(nil) {}
     };
 
-    std::vector<T> m_slots;
-    Index m_free = Nil;
+    std::vector<Slot> m_slots;
+    Index m_free = nil;
     Index m_high = 0;
     std::size_t m_exhausted = 0;
 };
+ 
+
+struct NoShard {
+    static constexpr std::size_t count = 1;
+    static constexpr std::size_t of(uint16_t) { return 0; }
+};
+
+
+template<std::size_t Bits>
+struct MaskShard {
+    static constexpr std::size_t count = std::size_t{1} << Bits;
+    static constexpr std::size_t of(uint16_t locate) { return locate & (count-1); }
+};
+
+
+// template<typename T, typename Shard = NoShard>
+// class 
 
 }
