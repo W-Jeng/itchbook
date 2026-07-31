@@ -10,7 +10,6 @@ using OrderRefNum = uint64_t;
 // Implementation Specific
 using SlotIndex = uint32_t;
 
-
 struct OrderRecord {
     uint32_t shares;
     uint32_t price;
@@ -18,6 +17,10 @@ struct OrderRecord {
     char side;
 };
 
+struct PriceLevel {
+    uint32_t total_shares;
+    uint32_t order_count;
+};
 
 enum class Site : uint8_t {
     Dispatch, 
@@ -27,7 +30,6 @@ enum class Site : uint8_t {
     Replace,
     COUNT
 };
-
 
 using Prof = Profiler<Site, ProfilingEnabled, 1'000'000>;
 

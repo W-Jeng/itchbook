@@ -3,9 +3,9 @@
 
 namespace itchbook {
 
-inline void parse_system_event(const std::byte* m, ParseState& state) { }
+inline void handle_system_event(const std::byte* m, Session& state) { }
 
-inline void parse_stock_directory(const std::byte* m, ParseState& state) {
+inline void handle_stock_directory(const std::byte* m, Session& state) {
     uint16_t locate = load_be<uint16_t>(m+1);
     Symbol& s = state.symbols[locate];
     std::memcpy(s.name, m+11, 8); 

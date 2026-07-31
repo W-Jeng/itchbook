@@ -11,10 +11,10 @@ struct EventStats {
     std::size_t trailing = 0;
     std::size_t bad_length = 0;
     std::size_t unknown = 0;
-    std::array<uint64_t, 256> type_counts;
+    std::array<uint64_t, 256> type_counts{};
 };
 
-std::ostream& operator<<(std::ostream& os, const EventStats& s) {
+inline std::ostream& operator<<(std::ostream& os, const EventStats& s) {
     os << "trailing:   " << s.trailing   << '\n'
        << "bad_length: " << s.bad_length << '\n'
        << "unknown:    " << s.unknown    << '\n'
@@ -40,9 +40,9 @@ std::ostream& operator<<(std::ostream& os, const EventStats& s) {
     return os;
 }
 
-struct ParseState {
+struct Session {
     std::array<Symbol, 65536> symbols{};
-    OrderStore<MaskShard<6>> order_store{1'000'000};
+    OrderStore<NoShard> order_store{1'000'000};
 };
 
 }

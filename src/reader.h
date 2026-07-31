@@ -2,9 +2,9 @@
 #include "byte_order.h"
 #include "mapped_file.h"
 #include "messages.h"
-#include "parse_state.h"
-#include "parse_admin_msg.h"
-#include "parse_order_msg.h"
+#include "session.h"
+#include "handle_admin.h"
+#include "handle_order.h"
 #include "order_store.h"
 #include <array>
 #include <cstdint>
@@ -33,7 +33,7 @@ public:
         // print_symbols(std:cout, m_state.symbols);
     }
 
-    const ParseState& state() const { return m_state; }
+    const Session& state() const { return m_state; }
     const EventStats& stats() const { return m_stats; }
 
 private:
@@ -54,39 +54,39 @@ private:
 
         switch (t) {
             case 'S':
-                parse_system_event(p, m_state);
+                handle_system_event(p, m_state);
                 break;
 
             case 'R':
-                parse_stock_directory(p, m_state);
+                handle_stock_directory(p, m_state);
                 break;
             
             case 'A':
-                parse_add_order(p, m_state);
+                handle_add_order(p, m_state);
                 break;
 
             case 'F':
-                parse_add_order(p, m_state);
+                handle_add_order(p, m_state);
                 break;
 
             case 'E':
-                parse_order_executed(p, m_state);
+                handle_order_executed(p, m_state);
                 break;
             
             case 'C':
-                parse_order_executed_with_price(p, m_state);
+                handle_order_executed_with_price(p, m_state);
                 break;
             
             case 'X':
-                parse_order_cancel(p, m_state);
+                handle_order_cancel(p, m_state);
                 break;
             
             case 'D':
-                parse_order_delete(p, m_state);
+                handle_order_delete(p, m_state);
                 break;
             
             case 'U':
-                parse_order_replace(p, m_state);
+                handle_order_replace(p, m_state);
                 break;
             
             default:
@@ -102,7 +102,7 @@ private:
         );
     }
     
-    ParseState m_state{};
+    Session m_state{};
     EventStats m_stats{};
 };
 

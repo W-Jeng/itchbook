@@ -3,6 +3,7 @@
 #include "pool_allocator.h"
 #include <unordered_map>
 #include <array>
+#include <boost/unordered/unordered_flat_map.hpp>
 
 namespace itchbook {
 
@@ -23,8 +24,10 @@ template <typename Shard = NoShard>
 class OrderStore {
 public:
     explicit OrderStore(std::size_t capacity_per_shard) {
-        for (auto& b: m_buckets)
+        for (auto& b: m_buckets) {
             b.order_pool.init(capacity_per_shard);
+            b.ref_to_slot.reserve(capacity_per_shard);
+        }
     }
     
     OrderRecord* emplace(StockLocate locate, OrderRefNum ref) {
@@ -59,18 +62,17 @@ public:
         return m_exhausted;
     }
 
-
 private:
     using OrderPool = PoolAllocator<OrderRecord>;
+    using RefMap = boost::unordered_flat_map<OrderRefNum, SlotIndex>;
 
     struct Bucket {
-        std::unordered_map<OrderRefNum, SlotIndex> ref_to_slot;
+        RefMap ref_to_slot;
         OrderPool order_pool;
     };
 
     std::array<Bucket, Shard::count> m_buckets;
     std::size_t m_exhausted{0};
-
 };
 
 }
