@@ -9,12 +9,17 @@ namespace itchbook {
 template<typename T, typename Index = uint32_t>
 class PoolAllocator {
     static_assert(std::is_trivially_copyable_v<T>);
+    static_assert(std::is_trivially_destructible_v<T>);
     static_assert(sizeof(T) >= sizeof(Index));
 public:
     using index_type = Index;
-    static constexpr nil = std::numeric_limits<Index>::max();
+    static constexpr Index nil = std::numeric_limits<Index>::max();
 
-    explicit PoolAllocator(std::size_t cap): m_slots(cap) {}
+    PoolAllocator() = default;
+
+    void init(std::size_t cap) {
+        m_slots.resize(cap);
+    }
 
     Index alloc() {
         if (m_free != nil) {
@@ -60,21 +65,4 @@ private:
     std::size_t m_exhausted = 0;
 };
  
-
-struct NoShard {
-    static constexpr std::size_t count = 1;
-    static constexpr std::size_t of(uint16_t) { return 0; }
-};
-
-
-template<std::size_t Bits>
-struct MaskShard {
-    static constexpr std::size_t count = std::size_t{1} << Bits;
-    static constexpr std::size_t of(uint16_t locate) { return locate & (count-1); }
-};
-
-
-// template<typename T, typename Shard = NoShard>
-// class 
-
 }

@@ -5,6 +5,7 @@
 #include "parse_state.h"
 #include "parse_admin_msg.h"
 #include "parse_order_msg.h"
+#include "order_store.h"
 #include <array>
 #include <cstdint>
 #include <iostream>
@@ -91,7 +92,6 @@ private:
             default:
                 break;
         }
-
     }
 
     [[gnu::always_inline]]
@@ -101,7 +101,7 @@ private:
             | std::to_integer<uint8_t>(p[1])
         );
     }
-
+    
     ParseState m_state{};
     EventStats m_stats{};
 };

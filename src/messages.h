@@ -42,13 +42,6 @@ inline void print_symbols(std::ostream& os,
     }
 }
 
-struct OrderRecord {
-    uint32_t shares;
-    uint32_t price;
-    uint16_t locate;
-    char side;
-};
-
 inline constexpr std::array<uint8_t, 256> expected_len = [] {
     std::array<uint8_t, 256> t{};
     t['S'] = 12; t['R'] = 39; t['H'] = 25; t['Y'] = 20; t['L'] = 26;
