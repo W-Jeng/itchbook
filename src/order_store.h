@@ -55,6 +55,8 @@ public:
     }
 
     bool erase(StockLocate locate, OrderRefNum ref) {
+        Bucket& b = m_buckets[Shard::of(locate)];
+        
         return false;
     };
 

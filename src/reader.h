@@ -30,10 +30,10 @@ public:
         }
 
         m_stats.trailing = static_cast<std::size_t>(end-p);
-        // print_symbols(std:cout, m_state.symbols);
+        // print_symbols(std:cout, m_session.symbols);
     }
 
-    const Session& state() const { return m_state; }
+    const Session& state() const { return m_session; }
     const EventStats& stats() const { return m_stats; }
 
 private:
@@ -54,39 +54,39 @@ private:
 
         switch (t) {
             case 'S':
-                handle_system_event(p, m_state);
+                handle_system_event(p, m_session);
                 break;
 
             case 'R':
-                handle_stock_directory(p, m_state);
+                handle_stock_directory(p, m_session);
                 break;
             
             case 'A':
-                handle_add_order(p, m_state);
+                handle_add_order(p, m_session);
                 break;
 
             case 'F':
-                handle_add_order(p, m_state);
+                handle_add_order(p, m_session);
                 break;
 
             case 'E':
-                handle_order_executed(p, m_state);
+                handle_order_executed(p, m_session);
                 break;
             
             case 'C':
-                handle_order_executed_with_price(p, m_state);
+                handle_order_executed_with_price(p, m_session);
                 break;
             
             case 'X':
-                handle_order_cancel(p, m_state);
+                handle_order_cancel(p, m_session);
                 break;
             
             case 'D':
-                handle_order_delete(p, m_state);
+                handle_order_delete(p, m_session);
                 break;
             
             case 'U':
-                handle_order_replace(p, m_state);
+                handle_order_replace(p, m_session);
                 break;
             
             default:
@@ -102,7 +102,7 @@ private:
         );
     }
     
-    Session m_state{};
+    Session m_session{};
     EventStats m_stats{};
 };
 

@@ -1,13 +1,14 @@
 #pragma once
 #include <iostream>
+#include "session.h"
 
 namespace itchbook {
 
-inline void handle_system_event(const std::byte* m, Session& state) { }
+inline void handle_system_event(const std::byte* m, Session& session) { }
 
-inline void handle_stock_directory(const std::byte* m, Session& state) {
+inline void handle_stock_directory(const std::byte* m, Session& session) {
     uint16_t locate = load_be<uint16_t>(m+1);
-    Symbol& s = state.symbols[locate];
+    Symbol& s = session.symbols[locate];
     std::memcpy(s.name, m+11, 8); 
     s.round_lot = load_be<uint32_t>(m+21);
     s.market_category = static_cast<char>(m[19]);

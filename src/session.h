@@ -1,6 +1,7 @@
 #pragma once
 #include "messages.h"
 #include "order_store.h"
+#include "order_book.h"
 #include <array>
 #include <ostream>
 #include <iomanip>
@@ -42,7 +43,9 @@ inline std::ostream& operator<<(std::ostream& os, const EventStats& s) {
 
 struct Session {
     std::array<Symbol, 65536> symbols{};
-    OrderStore<NoShard> order_store{1'000'000};
+    std::unique_ptr<std::array<OrderBook, 65536>> books = 
+        std::make_unique<std::array<OrderBook, 65536>>();
+    OrderStore<NoShard> order_store{100'000'000};
 };
 
 }

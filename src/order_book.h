@@ -14,7 +14,7 @@ struct PriceLevel {
 
 class OrderBook {
 public:
-    explicit OrderBook(uint32_t num_levels = 4096)
+    OrderBook(uint32_t num_levels = 4096)
         : m_num_levels(num_levels)
     {
         m_bids.levels.resize(num_levels);
@@ -52,6 +52,13 @@ public:
             add_impl<false>(m_asks, price, shares);
     }
 
+    void subtract(char side, uint32_t price, uint32_t shares, bool order_removed) {
+        if (side == 'B') 
+            subtract_impl<true>(m_bids, price, shares, order_removed);
+        else
+            subtract_impl<false>(m_asks, price, shares, order_removed);
+    }
+
     uint32_t best_bid() const {
         const uint32_t ladder_best = m_bids.count > 0 ? m_bids.price_of(m_bids.best_idx) : 0;
         const uint32_t overflow_best = m_bids_overflow.empty() ? 0 : m_bids_overflow.begin()->first;
@@ -68,7 +75,7 @@ public:
         if (overflow_best == 0)
             return ladder_best;
 
-        return std::max(ladder_best, overflow_best);
+        return std::min(ladder_best, overflow_best);
     }
 
 private:
@@ -126,16 +133,80 @@ private:
         }
     }
 
+    template<bool IsBid>
+    auto& overflow_map() {
+        if constexpr (IsBid)
+            return m_bids_overflow;
+        else
+            return m_asks_overflow;
+    }
+
     template <bool IsBid>
     void add_overflow(uint32_t price, uint32_t shares) {
+        auto& overflow = overflow_map<IsBid>();
+        PriceLevel& p = overflow[price];
+        p.total_shares += shares;
+        p.order_count += 1;
+    }
+
+    template <bool IsBid>
+    void subtract_impl(Ladder& l, uint32_t price, uint32_t shares, bool order_removed) {
+        const uint32_t idx = ladder_idx(l, price);
+
+        if (idx == not_in_ladder) {
+            subtract_overflow<IsBid>(price, shares, order_removed);
+            return;
+        }
+
+        PriceLevel& p = l.levels[idx];
+        p.total_shares -= shares;
+        
+        if (order_removed)
+            p.order_count -= 1;
+
+        if (p.order_count == 0) {
+            l.count -= 1;
+
+            if (l.count != 0 && idx == l.best_idx)
+                scan_next_best<IsBid>(l);
+        }
+    }
+
+    template<bool IsBid>
+    void scan_next_best(Ladder& l) {
         if constexpr (IsBid) {
-            PriceLevel& p = m_bids_overflow[price];
-            p.total_shares += shares;
-            p.order_count += 1;
+            while (l.levels[l.best_idx].order_count == 0) {
+                if (l.best_idx == 0)
+                    break;
+
+                --l.best_idx;
+            }
         } else {
-            PriceLevel& p = m_asks_overflow[price];
-            p.total_shares += shares;
-            p.order_count += 1;
+            while (l.levels[l.best_idx].order_count == 0) {
+                if (l.best_idx+1 >= l.levels.size())
+                    break;
+
+                ++l.best_idx;
+            }
+        }
+    }
+
+    template <bool IsBid>
+    void subtract_overflow(uint32_t price, uint32_t shares, bool order_removed) {
+        auto& overflow = overflow_map<IsBid>();
+        auto it = overflow.find(price);
+
+        if (it == overflow.end())
+            throw std::runtime_error("Overflow price level is not found");
+
+        PriceLevel& p = it->second;
+        p.total_shares -= shares;
+
+        if (order_removed) {
+            p.order_count -= 1;
+
+            if (p.order_count == 0)
+                overflow.erase(it);
         }
     }
 };

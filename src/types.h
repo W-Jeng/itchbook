@@ -17,10 +17,6 @@ struct OrderRecord {
     char side;
 };
 
-struct PriceLevel {
-    uint32_t total_shares;
-    uint32_t order_count;
-};
 
 enum class Site : uint8_t {
     Dispatch, 
