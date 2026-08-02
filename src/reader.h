@@ -5,6 +5,8 @@
 #include "session.h"
 #include "handle_admin.h"
 #include "handle_order.h"
+#include "handle_noii.h"
+#include "handle_trade.h"
 #include "order_store.h"
 #include <array>
 #include <cstdint>
@@ -31,6 +33,8 @@ public:
 
         m_stats.trailing = static_cast<std::size_t>(end-p);
         // print_symbols(std:cout, m_session.symbols);
+        m_session.summary_overflow_accessed();
+        std::cout << "High water all: " << m_session.order_store.high_water_all() << "\n";
     }
 
     const Session& state() const { return m_session; }
@@ -88,7 +92,19 @@ private:
             case 'U':
                 handle_order_replace(p, m_session);
                 break;
+
+            case 'I':
+                handle_noii(p, m_session);
+                break;
             
+            case 'P':
+                handle_trade(p, m_session);
+                break;
+
+            case 'Q':
+                handle_cross_trade(p, m_session);
+                break;
+
             default:
                 break;
         }

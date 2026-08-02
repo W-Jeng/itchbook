@@ -56,12 +56,27 @@ public:
 
     bool erase(StockLocate locate, OrderRefNum ref) {
         Bucket& b = m_buckets[Shard::of(locate)];
-        
-        return false;
+        auto it = b.ref_to_slot.find(ref);
+
+        if (it == b.ref_to_slot.end())
+            return false;
+
+        b.order_pool.release(it->second);
+        b.ref_to_slot.erase(it);
+        return true;
     };
 
     std::size_t exhausted() const {
         return m_exhausted;
+    }
+
+    std::size_t high_water_all() const {
+        std::size_t res = 0;
+
+        for (const auto& b: m_buckets)
+            res = std::max(res, b.order_pool.high_water());
+
+        return res;
     }
 
 private:

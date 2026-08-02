@@ -3,6 +3,8 @@
 #include "session.h"
 #include <stdexcept>
 #include <iostream>
+#include <array>
+#include <unordered_set>
 
 namespace itchbook {
 
@@ -22,14 +24,18 @@ inline void handle_add_order(const std::byte* m, Session& session) {
     o->side = static_cast<char>(m[19]);
     (*session.books)[locate].add(o->side, o->price, o->shares);
 
-    // in dispatch, before printing
-    // const uint64_t ts = load_be48(m + 5);
-    // const double seconds = ts / 1e9;
-    // const int hours = int(seconds) / 3600;
-    // const int mins  = (int(seconds) % 3600) / 60;
-    // std::cout << "H: " << hours << ", M: " << mins << ", Locate: " << locate << 
-    //     ", best bid: " << (*session.books)[locate].best_bid() <<
-    //     ", ask: " << (*session.books)[locate].best_ask() << "\n";
+    // static std::array<uint8_t, 65536> logged{};
+    // static std::unordered_set<uint16_t> printed;
+    // auto& book = (*session.books)[locate];
+
+    // if (book.num_overflow_accessed() == 1 && !printed.contains(locate) && ticker(session.symbols[locate]) =="MSFT") {
+    //     const auto& ar_bid = book.anchored_bid_ranges();
+    //     const auto& ar_ask = book.anchored_ask_ranges();
+    //     fmt::print("overflow: locate={} ({}) price=${} side={}, lower_bid={}, upper_bid={}, lower_ask={}, upper_ask={}\n",
+    //         locate, ticker(session.symbols[locate]), o->price, o->side, ar_bid.first, ar_bid.second, ar_ask.first, ar_ask.second);
+    //     printed.insert(locate);
+    // }
+
 }
 
 inline void handle_order_executed(const std::byte* m, Session& session) {
