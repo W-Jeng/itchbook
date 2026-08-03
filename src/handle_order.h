@@ -23,19 +23,6 @@ inline void handle_add_order(const std::byte* m, Session& session) {
     o->locate = locate;
     o->side = static_cast<char>(m[19]);
     (*session.books)[locate].add(o->side, o->price, o->shares);
-
-    // static std::array<uint8_t, 65536> logged{};
-    // static std::unordered_set<uint16_t> printed;
-    // auto& book = (*session.books)[locate];
-
-    // if (book.num_overflow_accessed() == 1 && !printed.contains(locate) && ticker(session.symbols[locate]) =="MSFT") {
-    //     const auto& ar_bid = book.anchored_bid_ranges();
-    //     const auto& ar_ask = book.anchored_ask_ranges();
-    //     fmt::print("overflow: locate={} ({}) price=${} side={}, lower_bid={}, upper_bid={}, lower_ask={}, upper_ask={}\n",
-    //         locate, ticker(session.symbols[locate]), o->price, o->side, ar_bid.first, ar_bid.second, ar_ask.first, ar_ask.second);
-    //     printed.insert(locate);
-    // }
-
 }
 
 inline void handle_order_executed(const std::byte* m, Session& session) {
@@ -48,8 +35,9 @@ inline void handle_order_executed(const std::byte* m, Session& session) {
     if (!o)
         throw std::runtime_error("Unable to find the order record in handle_order_executed");
 
-    uint32_t executed_shares = load_be<uint32_t>(m+19);
-    o->shares -= executed_shares;
+    const uint32_t executed_shares = load_be<uint32_t>(m+19);
+    const uint32_t taken = std::min(executed_shares, o->shares);
+    o->shares -= taken;
     bool need_remove = (o->shares == 0);
 
     (*session.books)[locate].subtract(o->side, o->price, executed_shares, need_remove);
@@ -107,6 +95,8 @@ inline void handle_order_replace(const std::byte* m, Session& session) {
         throw std::runtime_error("Unable to find the order record for handle_order_replace!");
 
     (*session.books)[locate].subtract(o->side, o->price, o->shares, true);
+    const char side = o->side;
+    session.order_store.erase(locate, old_order_ref);
     const OrderRefNum new_order_ref = load_be<uint64_t>(m+19);
     OrderRecord* new_o = session.order_store.emplace(locate, new_order_ref);
 
@@ -116,11 +106,8 @@ inline void handle_order_replace(const std::byte* m, Session& session) {
     new_o->shares = load_be<uint32_t>(m+27);
     new_o->price = load_be<uint32_t>(m+31);
     new_o->locate = locate;
-    new_o->side = o->side;
+    new_o->side = side;
     (*session.books)[locate].add(new_o->side, new_o->price, new_o->shares);
-
-    // erase old order_ref
-    session.order_store.erase(locate, old_order_ref);
 }
 
 }

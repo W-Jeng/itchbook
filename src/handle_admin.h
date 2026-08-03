@@ -16,4 +16,4 @@ inline void handle_stock_directory(const std::byte* m, Session& session) {
     s.is_etp = static_cast<char>(m[33]);
 }
 
-};
+}

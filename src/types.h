@@ -54,6 +54,18 @@ inline std::string_view site_to_str(Site site) {
     return "Unknown";
 }
 
+
+enum class MarketPhase : uint8_t {
+    PreOpen,
+    StartOfMessages,
+    SystemHours,
+    RegularTrading,
+    AfterHours,
+    EndOfSystemHours,
+    EndOfMessages
+};
+
+
 inline constexpr bool ProfilingEnabled = true;
 using Prof = Profiler<Site, ProfilingEnabled, 1'000'000>;
 inline constexpr uint8_t SampleEveryN = 0x3F;
