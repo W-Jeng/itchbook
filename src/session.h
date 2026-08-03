@@ -13,6 +13,7 @@ struct EventStats {
     std::size_t trailing = 0;
     std::size_t bad_length = 0;
     std::size_t unknown = 0;
+    std::size_t total_msg_count = 0;
     std::array<uint64_t, 256> type_counts{};
 };
 
@@ -46,10 +47,8 @@ struct Session {
     std::array<Symbol, 65536> symbols{};
     std::unique_ptr<std::array<OrderBook, 65536>> books = 
         std::make_unique<std::array<OrderBook, 65536>>();
-    static constexpr std::size_t high_water_orders = 4'000'000;
-    static constexpr uint8_t num_shard = 1; // 64 shards
-    static constexpr std::size_t order_per_shard = high_water_orders/num_shard;
-    OrderStore<NoShard> order_store{order_per_shard};
+    OrderStore<NoShard> order_store{2'000'000};
+    Prof profiler;
 
     void summary_overflow_accessed() {
         // in add_overflow, log the first few per symbol

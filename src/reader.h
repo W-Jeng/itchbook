@@ -8,6 +8,7 @@
 #include "handle_noii.h"
 #include "handle_trade.h"
 #include "order_store.h"
+#include "utils.h"
 #include <array>
 #include <cstdint>
 #include <iostream>
@@ -35,16 +36,21 @@ public:
         // print_symbols(std:cout, m_session.symbols);
         m_session.summary_overflow_accessed();
         std::cout << "High water all: " << m_session.order_store.high_water_all() << "\n";
+        report_latency(m_session.profiler);
     }
 
     const Session& state() const { return m_session; }
     const EventStats& stats() const { return m_stats; }
 
 private:
+    Session m_session{};
+    EventStats m_stats{};
+
     void dispatch(const std::byte* p, uint16_t len) {
         const uint8_t t = std::to_integer<uint8_t>(p[0]);
         const uint8_t expect = expected_len[t];
         ++m_stats.type_counts[t];
+        ++m_stats.total_msg_count;
 
         if (expect == 0) {
             ++m_stats.unknown;
@@ -55,6 +61,12 @@ private:
             ++m_stats.bad_length;
             return;
         }   
+
+        const bool sample = ((m_stats.total_msg_count & SampleEveryN) == 0);
+        const Site site = sample ? site_of(p, t) : Site::Other;
+
+        if (sample)
+            m_session.profiler.start(site);
 
         switch (t) {
             case 'S':
@@ -108,6 +120,9 @@ private:
             default:
                 break;
         }
+
+        if (sample)
+            m_session.profiler.stop(site);
     }
 
     [[gnu::always_inline]]
@@ -118,8 +133,37 @@ private:
         );
     }
     
-    Session m_session{};
-    EventStats m_stats{};
+    Site site_of(const std::byte* p, uint8_t t) const {
+        const StockLocate loc = load_be<uint16_t>(p + 1);
+        const bool anchored = (*m_session.books)[loc].is_anchored();
+
+        switch (t) {
+            case 'A':
+                return anchored ? Site::AddOrder : Site::AddOrderPre;
+
+            case 'F':
+                return anchored ? Site::AddOrder : Site::AddOrderPre;
+
+            case 'D':
+                return anchored ? Site::Delete : Site::DeletePre;
+
+            case 'E':
+                return anchored ? Site::Execute : Site::ExecutePre;
+
+            case 'C':
+                return anchored ? Site::Execute : Site::ExecutePre;
+
+            case 'X':
+                return anchored ? Site::Cancel : Site::CancelPre;
+
+            case 'U':
+                return anchored ? Site::Replace : Site::ReplacePre;
+
+            default:
+                return Site::Other;
+        }
+    }
+
 };
 
 }

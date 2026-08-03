@@ -8,8 +8,6 @@
 
 namespace itchbook {
 
-inline constexpr bool ProfilingEnabled = true;
-
 template<std::size_t N>
 class SampleBuffer {
 public:
@@ -93,7 +91,7 @@ public:
     }
     
     SampleBuffer<N>& samples(Site s) {
-        return m_probes[static_cat<std::size_t>(s)].samples();
+        return m_probes[static_cast<std::size_t>(s)].samples();
     }
 
 private:

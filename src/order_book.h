@@ -80,6 +80,10 @@ public:
 
         return std::min(ladder_best, overflow_best);
     }
+    
+    bool is_anchored() const {
+        return m_bids.anchored && m_asks.anchored;
+    }
 
     uint32_t num_overflow_accessed() const {
         return overflow_accessed;
