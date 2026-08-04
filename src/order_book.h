@@ -108,6 +108,9 @@ public:
 
         m_asks.init(price, m_num_levels);
         move_to_ladder<false>(m_asks, m_asks_overflow);
+
+        // reset it 
+        overflow_accessed = 0;
     }
     
 private:
