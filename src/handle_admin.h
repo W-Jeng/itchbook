@@ -4,7 +4,35 @@
 
 namespace itchbook {
 
-inline void handle_system_event(const std::byte* m, Session& session) { }
+inline void handle_system_event(const std::byte* m, Session& session) {
+    const char code = static_cast<char>(m[11]);
+
+    switch (code) {
+        case 'O': 
+            session.phase = MarketPhase::StartOfMessages;  
+            break;
+
+        case 'S': 
+            session.phase = MarketPhase::SystemHours;      
+            break;
+
+        case 'Q': 
+            session.phase = MarketPhase::RegularTrading;   
+            break;
+
+        case 'M': 
+            session.phase = MarketPhase::AfterHours;       
+            break;
+        
+        case 'E': 
+            session.phase = MarketPhase::EndOfSystemHours; 
+            break;
+        
+        case 'C': 
+            session.phase = MarketPhase::EndOfMessages;    
+            break;
+    }
+}
 
 inline void handle_stock_directory(const std::byte* m, Session& session) {
     uint16_t locate = load_be<uint16_t>(m+1);

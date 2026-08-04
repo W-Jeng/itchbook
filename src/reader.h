@@ -8,6 +8,7 @@
 #include "handle_noii.h"
 #include "handle_trade.h"
 #include "order_store.h"
+#include "validation.h"
 #include "utils.h"
 #include <array>
 #include <cstdint>
@@ -37,6 +38,7 @@ public:
         m_session.summary_overflow_accessed();
         std::cout << "High water all: " << m_session.order_store.high_water_all() << "\n";
         report_latency(m_session.profiler);
+        std::cout << m_session.validation;
     }
 
     const Session& state() const { return m_session; }
@@ -123,6 +125,8 @@ private:
 
         if (sample)
             m_session.profiler.stop(site);
+
+        validate_book(p, m_session);
     }
 
     [[gnu::always_inline]]

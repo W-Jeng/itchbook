@@ -49,7 +49,8 @@ struct ValidationStats {
 
 
 inline std::ostream& operator<<(std::ostream& os, const ValidationStats& v) {
-    os << "crossed during regular hours: " << v.crossed_count << "\n"
+    os << "\n[Validation]\n"
+       << "crossed during regular hours: " << v.crossed_count << "\n"
        << "execution volume (E+C):      " << v.execution_volume << "\n"
        << "trade volume (P):            " << v.trade_volume << "\n"
        << "cross volume (Q):            " << v.cross_volume << "\n"
