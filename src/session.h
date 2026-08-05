@@ -7,6 +7,7 @@
 #include <array>
 #include <ostream>
 #include <iomanip>
+#include <vector>
 
 namespace itchbook {
 
@@ -18,6 +19,7 @@ struct Session {
     Prof profiler;
     MarketPhase phase = MarketPhase::PreOpen;
     ValidationStats validation{};
+    std::array<char, 65536> halt_state{};
 
     void summary_overflow_accessed() {
         // in add_overflow, log the first few per symbol

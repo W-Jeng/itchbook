@@ -44,4 +44,9 @@ inline void handle_stock_directory(const std::byte* m, Session& session) {
     s.is_etp = static_cast<char>(m[33]);
 }
 
+inline void handle_trading_action(const std::byte* m, Session& session) {
+    const StockLocate locate = load_be<uint16_t>(m+1);
+    session.halt_state[locate] = static_cast<char>(m[19]);
+}
+
 }

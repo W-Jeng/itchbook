@@ -57,19 +57,22 @@ inline void validate_book(const std::byte* p, Session& session) {
     const uint32_t ask = book.best_ask();
 
     if (bid > 0 && ask > 0 && bid >= ask) {
-        ++session.validation.crossed_count;
+        const char state = session.halt_state[locate];
 
-        if (session.validation.crossed_count <= 8000) {
-            const uint64_t ts = load_be48(p + 5);
-            const double secs = ts / 1e9;
-            const int h = int(secs) / 3600;
-            const int m = (int(secs) % 3600) / 60;
-            const int s = int(secs) % 60;
-            const StockLocate locate = load_be<uint16_t>(p + 1);
-            fmt::print("CROSSED {:02d}:{:02d}:{:02d} locate={} ({}) bid={} ask={}\n",
-                h, m, s, locate, ticker(session.symbols[locate]), bid, ask);
+        if (state == 'T' || state == 0) {
+            ++session.validation.crossed_count;
+
+            if (session.validation.crossed_count <= 8000) {
+                const uint64_t ts = load_be48(p + 5);
+                const double secs = ts / 1e9;
+                const int h = int(secs) / 3600;
+                const int m = (int(secs) % 3600) / 60;
+                const int s = int(secs) % 60;
+                fmt::print("CROSSED {:02d}:{:02d}:{:02d} locate={} ({}) bid={} ask={}\n",
+                    h, m, s, locate, ticker(session.symbols[locate]), bid, ask);
+            }
         }
-}
+    }
 }
 
 }

@@ -78,6 +78,10 @@ private:
             case 'R':
                 handle_stock_directory(p, m_session);
                 break;
+
+            case 'H':
+                handle_trading_action(p, m_session);
+                break;
             
             case 'A':
                 handle_add_order(p, m_session);
