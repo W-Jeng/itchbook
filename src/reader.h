@@ -34,11 +34,10 @@ public:
         }
 
         m_stats.trailing = static_cast<std::size_t>(end-p);
-        // print_symbols(std:cout, m_session.symbols);
-        m_session.summary_overflow_accessed();
         std::cout << "High water all: " << m_session.order_store.high_water_all() << "\n";
         report_latency(m_session.profiler);
         std::cout << m_session.validation;
+        m_session.summary_overflow_accessed();
     }
 
     const Session& state() const { return m_session; }

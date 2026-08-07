@@ -67,7 +67,7 @@ enum class MarketPhase : uint8_t {
 
 
 inline constexpr bool ProfilingEnabled = true;
-using Prof = Profiler<Site, ProfilingEnabled, 1'000'000>;
+using Prof = Profiler<Site, ProfilingEnabled, 2'000'000>;
 inline constexpr uint8_t SampleEveryN = 0x3F;
 
 }

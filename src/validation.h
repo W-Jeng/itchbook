@@ -32,11 +32,13 @@ inline void validate_book(const std::byte* p, Session& session) {
         }
 
         case 'H': {
-            const StockLocate loc = load_be<uint16_t>(p + 1);
-            const char state = static_cast<char>(p[19]);
-            if (loc == 5142 || loc == 8615 || loc == 4208 || loc == 7598)
-                fmt::print("HALT locate={} state={} \n", loc, state);
-            break;
+            char trading_state = static_cast<char>(p[19]);
+
+            if (trading_state != 'T') {
+                const StockLocate loc = load_be<uint16_t>(p + 1);
+                session.validation.exclude_locate[loc] = true;
+                break;
+            }
         }
 
         default:
@@ -52,6 +54,10 @@ inline void validate_book(const std::byte* p, Session& session) {
         return;
 
     const StockLocate locate = load_be<uint16_t>(p + 1);
+    
+    if (session.validation.exclude_locate[locate])
+        return;
+
     const auto& book = (*session.books)[locate];
     const uint32_t bid = book.best_bid();
     const uint32_t ask = book.best_ask();

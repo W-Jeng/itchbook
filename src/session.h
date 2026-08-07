@@ -38,7 +38,7 @@ struct Session {
         std::sort(sorted.rbegin(), sorted.rend());
 
         for (int i = 0; i < 5 && i < sorted.size(); ++i)
-            fmt::print("locate {} ({}): {} overflows\n",
+            fmt::print("Locate {} ({}): {} overflows\n",
                 sorted[i].second, ticker(symbols[sorted[i].second]), sorted[i].first);
     }
 };

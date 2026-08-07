@@ -1,6 +1,7 @@
 #pragma once
 #include <ostream>
 #include <iomanip>
+#include <numeric>
 
 
 namespace itchbook {
@@ -45,12 +46,19 @@ struct ValidationStats {
     uint64_t execution_volume = 0;
     uint64_t trade_volume = 0;
     uint64_t cross_volume = 0;
+    std::vector<bool> exclude_locate{std::vector<bool>(65536, false)};
 };
 
 
 inline std::ostream& operator<<(std::ostream& os, const ValidationStats& v) {
+    int total_exclude = std::accumulate(v.exclude_locate.begin(), v.exclude_locate.end(), 0, 
+        [](int total, int cur) {
+            return total + (cur ? 1 : 0);
+        }
+    );
     os << "\n[Validation]\n"
        << "crossed during regular hours: " << v.crossed_count << "\n"
+       << "total exclude: " << total_exclude << "\n"
        << "execution volume (E+C):      " << v.execution_volume << "\n"
        << "trade volume (P):            " << v.trade_volume << "\n"
        << "cross volume (Q):            " << v.cross_volume << "\n"
